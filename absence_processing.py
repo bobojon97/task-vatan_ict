@@ -1,24 +1,36 @@
 from datetime import datetime, timedelta
 
 def process_absences(absences):
+    sorted_absences = sorted(absences, key=lambda x: (x['id'], x['date']))
     result = []
-    absences.sort(key=lambda x: x['date'])
-    
-    for absence in absences:
-        schoolboy_id = absence['id']
-        schoolboy_name = absence['fullName']
-        absence_date = datetime.strptime(absence['date'], "%Y-%m-%d").date()
-        
-        if not result or result[-1]['id'] != schoolboy_id or result[-1]['endDate'] + timedelta(days=1) != absence_date:
-            result.append({'id': schoolboy_id, 'fullName': schoolboy_name, 'startDate': absence_date, 'endDate': absence_date})
+    current_record = None
+
+    for absence in sorted_absences:
+        if current_record is None:
+            current_record = {
+                'id': absence['id'],
+                'fullName': absence['fullName'],
+                'startDate': absence['date'],
+                'endDate': absence['date']
+            }
         else:
-            result[-1]['endDate'] = absence_date
-    
-    # Преобразование дат в строки в формате "гггг-мм-дд"
-    for entry in result:
-        entry['startDate'] = entry['startDate'].strftime("%Y-%m-%d")
-        entry['endDate'] = entry['endDate'].strftime("%Y-%m-%d")
-    
+            current_date = datetime.strptime(absence['date'], '%Y-%m-%d').date()
+            previous_date = datetime.strptime(current_record['endDate'], '%Y-%m-%d').date()
+
+            if current_record['id'] == absence['id'] and (current_date - previous_date).days == 1:
+                current_record['endDate'] = absence['date']
+            else:
+                result.append(current_record)
+                current_record = {
+                    'id': absence['id'],
+                    'fullName': absence['fullName'],
+                    'startDate': absence['date'],
+                    'endDate': absence['date']
+                }
+
+    if current_record is not None:
+        result.append(current_record)
+
     return result
 
 
