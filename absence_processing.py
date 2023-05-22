@@ -5,12 +5,12 @@ def process_absences(absences):
     absences.sort(key=lambda x: x['date'])
     
     for absence in absences:
-        student_id = absence['id']
-        student_name = absence['fullName']
+        schoolboy_id = absence['id']
+        schoolboy_name = absence['fullName']
         absence_date = datetime.strptime(absence['date'], "%Y-%m-%d").date()
         
-        if not result or result[-1]['id'] != student_id or result[-1]['endDate'] + timedelta(days=1) != absence_date:
-            result.append({'id': student_id, 'fullName': student_name, 'startDate': absence_date, 'endDate': absence_date})
+        if not result or result[-1]['id'] != schoolboy_id or result[-1]['endDate'] + timedelta(days=1) != absence_date:
+            result.append({'id': schoolboy_id, 'fullName': schoolboy_name, 'startDate': absence_date, 'endDate': absence_date})
         else:
             result[-1]['endDate'] = absence_date
     
